@@ -122,6 +122,21 @@ export class UserAccountManager {
     return accounts.active;
   }
 
+  getAllAccounts(): string[] {
+    const filePath = this.getGoogleAccountsCachePath();
+    const accounts = this.readAccountsSync(filePath);
+    const result: string[] = [];
+    if (accounts.active) {
+      result.push(accounts.active);
+    }
+    for (const email of accounts.old) {
+      if (!result.includes(email)) {
+        result.push(email);
+      }
+    }
+    return result;
+  }
+
   getLifetimeGoogleAccounts(): number {
     const filePath = this.getGoogleAccountsCachePath();
     const accounts = this.readAccountsSync(filePath);
@@ -142,6 +157,18 @@ export class UserAccountManager {
       }
       accounts.active = null;
     }
+
+    await fsp.writeFile(filePath, JSON.stringify(accounts, null, 2), 'utf-8');
+  }
+
+  async removeAccount(email: string): Promise<void> {
+    const filePath = this.getGoogleAccountsCachePath();
+    const accounts = await this.readAccounts(filePath);
+
+    if (accounts.active === email) {
+      accounts.active = null;
+    }
+    accounts.old = accounts.old.filter((e) => e !== email);
 
     await fsp.writeFile(filePath, JSON.stringify(accounts, null, 2), 'utf-8');
   }

@@ -45,11 +45,22 @@ const authLogoutCommand: SlashCommand = {
   },
 };
 
+const authSwitchCommand: SlashCommand = {
+  name: 'switch',
+  description: 'Switch between accounts (Personal, Work, etc)',
+  kind: CommandKind.BUILT_IN,
+  autoExecute: true,
+  action: (_context, _args): OpenDialogActionReturn => ({
+    type: 'dialog',
+    dialog: 'account_switcher',
+  }),
+};
+
 export const authCommand: SlashCommand = {
   name: 'auth',
   description: 'Manage authentication',
   kind: CommandKind.BUILT_IN,
-  subCommands: [authLoginCommand, authLogoutCommand],
+  subCommands: [authLoginCommand, authLogoutCommand, authSwitchCommand],
   action: (context, args) =>
     // Default to login if no subcommand is provided
     authLoginCommand.action!(context, args),

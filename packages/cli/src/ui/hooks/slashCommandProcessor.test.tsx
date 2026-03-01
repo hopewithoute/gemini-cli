@@ -228,6 +228,7 @@ describe('useSlashCommandProcessor', () => {
             openPrivacyNotice: vi.fn(),
             openSettingsDialog: vi.fn(),
             openSessionBrowser: vi.fn(),
+            openAccountSwitcherDialog: vi.fn(),
             openModelDialog: mockOpenModelDialog,
             openAgentConfigDialog,
             openPermissionsDialog: vi.fn(),

@@ -109,9 +109,6 @@ export interface QuitActionReturn {
   messages: HistoryItem[];
 }
 
-/**
- * The return type for a command action that needs to open a dialog.
- */
 export interface OpenDialogActionReturn {
   type: 'dialog';
   props?: Record<string, unknown>;
@@ -126,7 +123,8 @@ export interface OpenDialogActionReturn {
     | 'sessionBrowser'
     | 'model'
     | 'agentConfig'
-    | 'permissions';
+    | 'permissions'
+    | 'account_switcher';
 }
 
 /**

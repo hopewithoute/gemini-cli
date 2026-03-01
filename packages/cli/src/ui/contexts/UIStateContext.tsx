@@ -115,6 +115,7 @@ export interface UIState {
   authError: string | null;
   accountSuspensionInfo: AccountSuspensionInfo | null;
   isAuthDialogOpen: boolean;
+  isAccountSwitcherDialogOpen: boolean;
   isAwaitingApiKeyInput: boolean;
   apiKeyDefaultValue?: string;
   editorError: string | null;
