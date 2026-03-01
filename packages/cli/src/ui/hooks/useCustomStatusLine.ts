@@ -59,7 +59,8 @@ export function useCustomStatusLine() {
 
     const quotaRemainingPercent =
       uiState.quota.stats?.limit && uiState.quota.stats.limit > 0
-        ? (uiState.quota.stats.remaining / uiState.quota.stats.limit) * 100
+        ? ((uiState.quota.stats.remaining ?? 0) / uiState.quota.stats.limit) *
+          100
         : 100;
 
     const statePayload = {
