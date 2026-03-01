@@ -57,11 +57,11 @@ export function useCustomStatusLine() {
         ? ((totalOutputTokens / totalLatencyMs) * 1000).toFixed(1)
         : '0.0';
 
-    const quotaRemainingPercent =
-      uiState.quota.stats?.limit && uiState.quota.stats.limit > 0
-        ? ((uiState.quota.stats.remaining ?? 0) / uiState.quota.stats.limit) *
-          100
-        : 100;
+    const quotaStats = uiState.quota.stats;
+    const hasQuota = quotaStats?.limit && quotaStats.limit > 0;
+    const quotaRemainingPercent = hasQuota
+      ? ((quotaStats.remaining ?? 0) / quotaStats.limit!) * 100
+      : null;
 
     const statePayload = {
       model: { id: currentModel, display_name: currentModel },
@@ -74,7 +74,10 @@ export function useCustomStatusLine() {
         total_output_tokens: totalOutputTokens,
         total_tokens: totalTokens,
         output_tokens_per_second: Number(outputTokensPerSecond),
-        quota_remaining_percent: Number(quotaRemainingPercent.toFixed(0)),
+        quota_remaining_percent:
+          quotaRemainingPercent !== null
+            ? Number(quotaRemainingPercent.toFixed(1))
+            : null,
       },
     };
 
@@ -101,8 +104,7 @@ export function useCustomStatusLine() {
     uiState.branchName,
     uiState.sessionStats?.lastPromptTokenCount,
     uiState.sessionStats?.metrics,
-    uiState.quota.stats?.limit,
-    uiState.quota.stats?.remaining,
+    uiState.quota.stats,
   ]);
 
   return { output, isConfigured: !!command };
