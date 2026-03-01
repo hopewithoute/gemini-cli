@@ -251,7 +251,7 @@ describe('<Footer />', () => {
       },
     );
     await waitUntilReady();
-    expect(lastFrame()).not.toContain('Usage remaining');
+    expect(lastFrame()).toContain('85% usage remaining');
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
