@@ -63,7 +63,42 @@ const mockSessionStats: SessionStatsState = {
   },
 };
 
+vi.mock('../hooks/useCustomStatusLine.js', () => ({
+  useCustomStatusLine: vi
+    .fn()
+    .mockReturnValue({ isConfigured: false, output: null }),
+}));
+
+import { useCustomStatusLine } from '../hooks/useCustomStatusLine.js';
+
 describe('<Footer />', () => {
+  beforeEach(() => {
+    vi.mocked(useCustomStatusLine).mockReturnValue({
+      isConfigured: false,
+      output: null,
+    });
+  });
+
+  it('renders custom status line if configured', async () => {
+    vi.mocked(useCustomStatusLine).mockReturnValue({
+      isConfigured: true,
+      output: 'My custom \u001b[31mStatus\u001b[39m',
+    });
+    const { lastFrame, waitUntilReady, unmount } = renderWithProviders(
+      <Footer />,
+      {
+        width: 120,
+        uiState: {
+          branchName: defaultProps.branchName,
+          sessionStats: mockSessionStats,
+        },
+      },
+    );
+    await waitUntilReady();
+    expect(lastFrame()).toContain('My custom Status');
+    unmount();
+  });
+
   it('renders the component', async () => {
     const { lastFrame, waitUntilReady, unmount } = renderWithProviders(
       <Footer />,
@@ -216,7 +251,7 @@ describe('<Footer />', () => {
       },
     );
     await waitUntilReady();
-    expect(lastFrame()).not.toContain('Usage remaining');
+    expect(lastFrame()).toContain('85% usage remaining');
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });

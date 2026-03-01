@@ -23,8 +23,11 @@ import { useUIState } from '../contexts/UIStateContext.js';
 import { useConfig } from '../contexts/ConfigContext.js';
 import { useSettings } from '../contexts/SettingsContext.js';
 import { useVimMode } from '../contexts/VimModeContext.js';
+import { useCustomStatusLine } from '../hooks/useCustomStatusLine.js';
 
 export const Footer: React.FC = () => {
+  const { output, isConfigured } = useCustomStatusLine();
+
   const uiState = useUIState();
   const config = useConfig();
   const settings = useSettings();
@@ -76,120 +79,143 @@ export const Footer: React.FC = () => {
 
   const showDebugProfiler = debugMode || isDevelopment;
 
+  if (isConfigured) {
+    return (
+      <Box flexDirection="column" width={terminalWidth}>
+        <Box width={terminalWidth} paddingX={1}>
+          <Text>{output || 'Loading status...'}</Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
-    <Box
-      justifyContent={justifyContent}
-      width={terminalWidth}
-      flexDirection="row"
-      alignItems="center"
-      paddingX={1}
-    >
-      {(showDebugProfiler || displayVimMode || !hideCWD) && (
-        <Box>
-          {showDebugProfiler && <DebugProfiler />}
-          {displayVimMode && (
-            <Text color={theme.text.secondary}>[{displayVimMode}] </Text>
-          )}
-          {!hideCWD && (
-            <Text color={theme.text.primary}>
-              {displayPath}
-              {branchName && (
-                <Text color={theme.text.secondary}> ({branchName}*)</Text>
-              )}
-            </Text>
-          )}
-          {debugMode && (
-            <Text color={theme.status.error}>
-              {' ' + (debugMessage || '--debug')}
-            </Text>
-          )}
-        </Box>
-      )}
-
-      {/* Middle Section: Centered Trust/Sandbox Info */}
-      {!hideSandboxStatus && (
-        <Box
-          flexGrow={1}
-          alignItems="center"
-          justifyContent="center"
-          display="flex"
-        >
-          {isTrustedFolder === false ? (
-            <Text color={theme.status.warning}>untrusted</Text>
-          ) : process.env['SANDBOX'] &&
-            process.env['SANDBOX'] !== 'sandbox-exec' ? (
-            <Text color="green">
-              {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
-            </Text>
-          ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
-            <Text color={theme.status.warning}>
-              macOS Seatbelt{' '}
-              <Text color={theme.text.secondary}>
-                ({process.env['SEATBELT_PROFILE']})
+    <Box flexDirection="column" width={terminalWidth}>
+      <Box
+        justifyContent={justifyContent}
+        width={terminalWidth}
+        flexDirection="row"
+        alignItems="center"
+        paddingX={1}
+      >
+        {(showDebugProfiler || displayVimMode || !hideCWD) && (
+          <Box>
+            {showDebugProfiler && <DebugProfiler />}
+            {displayVimMode && (
+              <Text color={theme.text.secondary}>[{displayVimMode}] </Text>
+            )}
+            {!hideCWD && (
+              <Text color={theme.text.primary}>
+                {displayPath}
+                {branchName && (
+                  <Text color={theme.text.secondary}> ({branchName}*)</Text>
+                )}
               </Text>
-            </Text>
-          ) : (
-            <Text color={theme.status.error}>
-              no sandbox
-              {terminalWidth >= 100 && (
-                <Text color={theme.text.secondary}> (see /docs)</Text>
-              )}
-            </Text>
-          )}
-        </Box>
-      )}
+            )}
+            {debugMode && (
+              <Text color={theme.status.error}>
+                {' ' + (debugMessage || '--debug')}
+              </Text>
+            )}
+          </Box>
+        )}
 
-      {/* Right Section: Gemini Label and Console Summary */}
-      {!hideModelInfo && (
-        <Box alignItems="center" justifyContent="flex-end">
-          <Box alignItems="center">
-            <Text color={theme.text.primary}>
-              <Text color={theme.text.secondary}>/model </Text>
-              {getDisplayString(model)}
-              {!hideContextPercentage && (
-                <>
-                  {' '}
-                  <ContextUsageDisplay
-                    promptTokenCount={promptTokenCount}
-                    model={model}
-                    terminalWidth={terminalWidth}
-                  />
-                </>
-              )}
-              {quotaStats && (
-                <>
-                  {' '}
-                  <QuotaDisplay
-                    remaining={quotaStats.remaining}
-                    limit={quotaStats.limit}
-                    resetTime={quotaStats.resetTime}
-                    terse={true}
-                  />
-                </>
-              )}
-            </Text>
-            {showMemoryUsage && <MemoryUsageDisplay />}
-          </Box>
-          <Box alignItems="center">
-            {corgiMode && (
-              <Box paddingLeft={1} flexDirection="row">
-                <Text>
-                  <Text color={theme.ui.symbol}>| </Text>
-                  <Text color={theme.status.error}>▼</Text>
-                  <Text color={theme.text.primary}>(´</Text>
-                  <Text color={theme.status.error}>ᴥ</Text>
-                  <Text color={theme.text.primary}>`)</Text>
-                  <Text color={theme.status.error}>▼</Text>
+        {/* Middle Section: Centered Trust/Sandbox Info */}
+        {!hideSandboxStatus && (
+          <Box
+            flexGrow={1}
+            alignItems="center"
+            justifyContent="center"
+            display="flex"
+          >
+            {isTrustedFolder === false ? (
+              <Text color={theme.status.warning}>untrusted</Text>
+            ) : process.env['SANDBOX'] &&
+              process.env['SANDBOX'] !== 'sandbox-exec' ? (
+              <Text color="green">
+                {process.env['SANDBOX'].replace(/^gemini-(?:cli-)?/, '')}
+              </Text>
+            ) : process.env['SANDBOX'] === 'sandbox-exec' ? (
+              <Text color={theme.status.warning}>
+                macOS Seatbelt{' '}
+                <Text color={theme.text.secondary}>
+                  ({process.env['SEATBELT_PROFILE']})
                 </Text>
-              </Box>
-            )}
-            {showErrorSummary && (
-              <Box paddingLeft={1} flexDirection="row">
-                <Text color={theme.ui.comment}>| </Text>
-                <ConsoleSummaryDisplay errorCount={errorCount} />
-              </Box>
+              </Text>
+            ) : (
+              <Text color={theme.status.error}>
+                no sandbox
+                {terminalWidth >= 100 && (
+                  <Text color={theme.text.secondary}> (see /docs)</Text>
+                )}
+              </Text>
             )}
           </Box>
+        )}
+
+        {/* Right Section: Gemini Label and Console Summary */}
+        {!hideModelInfo && (
+          <Box alignItems="center" justifyContent="flex-end">
+            <Box alignItems="center">
+              <Text color={theme.text.primary}>
+                <Text color={theme.text.secondary}>/model </Text>
+                {getDisplayString(model)}
+                {!hideContextPercentage && (
+                  <>
+                    {' '}
+                    <ContextUsageDisplay
+                      promptTokenCount={promptTokenCount}
+                      model={model}
+                      terminalWidth={terminalWidth}
+                    />
+                  </>
+                )}
+                {quotaStats && (
+                  <>
+                    {' '}
+                    <QuotaDisplay
+                      remaining={quotaStats.remaining}
+                      limit={quotaStats.limit}
+                      resetTime={quotaStats.resetTime}
+                      terse={true}
+                    />
+                  </>
+                )}
+              </Text>
+              {showMemoryUsage && <MemoryUsageDisplay />}
+            </Box>
+            <Box alignItems="center">
+              {corgiMode && (
+                <Box paddingLeft={1} flexDirection="row">
+                  <Text>
+                    <Text color={theme.ui.symbol}>| </Text>
+                    <Text color={theme.status.error}>▼</Text>
+                    <Text color={theme.text.primary}>(´</Text>
+                    <Text color={theme.status.error}>ᴥ</Text>
+                    <Text color={theme.text.primary}>`)</Text>
+                    <Text color={theme.status.error}>▼</Text>
+                  </Text>
+                </Box>
+              )}
+              {showErrorSummary && (
+                <Box paddingLeft={1} flexDirection="row">
+                  <Text color={theme.ui.comment}>| </Text>
+                  <ConsoleSummaryDisplay errorCount={errorCount} />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        )}
+      </Box>
+      {quotaStats && (
+        <Box paddingX={1} width={terminalWidth}>
+          <QuotaDisplay
+            remaining={quotaStats.remaining}
+            limit={quotaStats.limit}
+            resetTime={quotaStats.resetTime}
+            showAlways={true}
+            showCommandPrefix={false}
+          />
         </Box>
       )}
     </Box>

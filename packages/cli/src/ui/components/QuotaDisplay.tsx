@@ -18,6 +18,8 @@ interface QuotaDisplayProps {
   limit: number | undefined;
   resetTime?: string;
   terse?: boolean;
+  showAlways?: boolean;
+  showCommandPrefix?: boolean;
 }
 
 export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
@@ -25,14 +27,38 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   limit,
   resetTime,
   terse = false,
+  showAlways = false,
+  showCommandPrefix = true,
 }) => {
-  if (remaining === undefined || limit === undefined || limit === 0) {
+  if (remaining === undefined) {
+    return null;
+  }
+
+  if (remaining === 0) {
+    const color = getStatusColor(0, {
+      green: QUOTA_THRESHOLD_HIGH,
+      yellow: QUOTA_THRESHOLD_MEDIUM,
+    });
+    const prefix = !terse && showCommandPrefix ? '/stats ' : '';
+    const resetInfo =
+      !terse && resetTime ? `, ${formatResetTime(resetTime)}` : '';
+
+    return (
+      <Text color={color}>
+        {terse
+          ? 'Limit reached'
+          : `${prefix}Limit reached${resetInfo}${!terse && '. /auth to continue.'}`}
+      </Text>
+    );
+  }
+
+  if (limit === undefined || limit === 0) {
     return null;
   }
 
   const percentage = (remaining / limit) * 100;
 
-  if (percentage > QUOTA_THRESHOLD_HIGH) {
+  if (!showAlways && percentage > QUOTA_THRESHOLD_HIGH) {
     return null;
   }
 
@@ -44,21 +70,13 @@ export const QuotaDisplay: React.FC<QuotaDisplayProps> = ({
   const resetInfo =
     !terse && resetTime ? `, ${formatResetTime(resetTime)}` : '';
 
-  if (remaining === 0) {
-    return (
-      <Text color={color}>
-        {terse
-          ? 'Limit reached'
-          : `/stats Limit reached${resetInfo}${!terse && '. /auth to continue.'}`}
-      </Text>
-    );
-  }
+  const prefix = !terse && showCommandPrefix ? '/stats ' : '';
 
   return (
     <Text color={color}>
       {terse
         ? `${percentage.toFixed(0)}%`
-        : `/stats ${percentage.toFixed(0)}% usage remaining${resetInfo}`}
+        : `${prefix}${percentage.toFixed(0)}% usage remaining${resetInfo}`}
     </Text>
   );
 };

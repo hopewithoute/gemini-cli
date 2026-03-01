@@ -122,6 +122,10 @@
         "items": [
           { "label": "Custom commands", "slug": "docs/cli/custom-commands" },
           {
+            "label": "Custom status line",
+            "slug": "docs/cli/custom-statusline"
+          },
+          {
             "label": "Enterprise configuration",
             "slug": "docs/cli/enterprise"
           },

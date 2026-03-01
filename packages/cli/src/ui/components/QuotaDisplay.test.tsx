@@ -96,4 +96,29 @@ describe('QuotaDisplay', () => {
     expect(lastFrame()).toMatchSnapshot();
     unmount();
   });
+
+  it('should render when usage > 20% if showAlways is true', async () => {
+    const { lastFrame, waitUntilReady, unmount } = render(
+      <QuotaDisplay remaining={85} limit={100} showAlways={true} />,
+    );
+    await waitUntilReady();
+    expect(lastFrame()).toContain('85% usage remaining');
+    unmount();
+  });
+
+  it('should NOT render /stats prefix if showCommandPrefix is false', async () => {
+    const { lastFrame, waitUntilReady, unmount } = render(
+      <QuotaDisplay
+        remaining={15}
+        limit={100}
+        showCommandPrefix={false}
+        terse={false}
+      />,
+    );
+    await waitUntilReady();
+    const frame = lastFrame();
+    expect(frame).toContain('15% usage remaining');
+    expect(frame).not.toContain('/stats');
+    unmount();
+  });
 });

@@ -2521,12 +2521,13 @@ describe('Config Quota & Preview Model Access', () => {
           };
         }
       ).getPooledQuota();
-      // Pro: 10 / 0.2 = 50 total.
-      // Flash: 80 / 0.8 = 100 total.
-      // Pooled: (10 + 80) / (50 + 100) = 90 / 150 = 0.6
-      expect(pooled?.remaining).toBe(90);
-      expect(pooled?.limit).toBe(150);
-      expect((pooled?.remaining ?? 0) / (pooled?.limit ?? 1)).toBeCloseTo(0.6);
+      // Pro: 10 / 50 = 0.2 fraction.
+      // Flash: 80 / 100 = 0.8 fraction.
+      // Pooled uses minimum fraction (most constrained): 0.2
+      // Synthetic: remaining = 200, limit = 1000
+      expect(pooled?.remaining).toBe(200);
+      expect(pooled?.limit).toBe(1000);
+      expect((pooled?.remaining ?? 0) / (pooled?.limit ?? 1)).toBeCloseTo(0.2);
     });
 
     it('should return undefined pooled quota for non-auto models', async () => {

@@ -676,18 +676,17 @@ export class Config implements McpContext {
   private lastEmittedQuotaLimit: number | undefined;
 
   private emitQuotaChangedEvent(): void {
-    const pooled = this.getPooledQuota();
+    const remaining = this.getQuotaRemaining();
+    const limit = this.getQuotaLimit();
+    const resetTime = this.getQuotaResetTime();
+
     if (
-      this.lastEmittedQuotaRemaining !== pooled.remaining ||
-      this.lastEmittedQuotaLimit !== pooled.limit
+      this.lastEmittedQuotaRemaining !== remaining ||
+      this.lastEmittedQuotaLimit !== limit
     ) {
-      this.lastEmittedQuotaRemaining = pooled.remaining;
-      this.lastEmittedQuotaLimit = pooled.limit;
-      coreEvents.emitQuotaChanged(
-        pooled.remaining,
-        pooled.limit,
-        pooled.resetTime,
-      );
+      this.lastEmittedQuotaRemaining = remaining;
+      this.lastEmittedQuotaLimit = limit;
+      coreEvents.emitQuotaChanged(remaining, limit, resetTime);
     }
   }
 
@@ -1480,9 +1479,30 @@ export class Config implements McpContext {
         .sort()
         .reverse()[0];
 
+      // Use the minimum remaining fraction (most constrained model) to
+      // represent the effective pooled quota. This avoids misleading
+      // percentages when only remainingFraction is available from the API
+      // and limits are synthetic.
+      const proFraction =
+        proQuota && proQuota.limit > 0
+          ? proQuota.remaining / proQuota.limit
+          : undefined;
+      const flashFraction =
+        flashQuota && flashQuota.limit > 0
+          ? flashQuota.remaining / flashQuota.limit
+          : undefined;
+
+      let minFraction: number;
+      if (proFraction !== undefined && flashFraction !== undefined) {
+        minFraction = Math.min(proFraction, flashFraction);
+      } else {
+        minFraction = proFraction ?? flashFraction ?? 0;
+      }
+
+      // Return synthetic remaining/limit that preserve the fraction.
       return {
-        remaining: (proQuota?.remaining ?? 0) + (flashQuota?.remaining ?? 0),
-        limit: (proQuota?.limit ?? 0) + (flashQuota?.limit ?? 0),
+        remaining: Math.round(minFraction * 1000),
+        limit: 1000,
         resetTime,
       };
     }
@@ -1625,16 +1645,24 @@ export class Config implements McpContext {
         this.lastQuotaFetchTime = Date.now();
 
         for (const bucket of quota.buckets) {
-          if (
-            bucket.modelId &&
-            bucket.remainingAmount &&
-            bucket.remainingFraction != null
-          ) {
-            const remaining = parseInt(bucket.remainingAmount, 10);
-            const limit =
-              bucket.remainingFraction > 0
-                ? Math.round(remaining / bucket.remainingFraction)
-                : (this.modelQuotas.get(bucket.modelId)?.limit ?? 0);
+          if (bucket.modelId && bucket.remainingFraction != null) {
+            let remaining: number;
+            let limit: number;
+
+            if (bucket.remainingAmount) {
+              // Use the actual remaining amount from the API.
+              remaining = parseInt(bucket.remainingAmount, 10);
+              limit =
+                bucket.remainingFraction > 0
+                  ? Math.round(remaining / bucket.remainingFraction)
+                  : (this.modelQuotas.get(bucket.modelId)?.limit ?? 0);
+            } else {
+              // No remainingAmount available — derive synthetic values from
+              // the fraction so that (remaining / limit) preserves the
+              // correct percentage.
+              remaining = Math.round(bucket.remainingFraction * 1000);
+              limit = 1000;
+            }
 
             if (!isNaN(remaining) && Number.isFinite(limit) && limit > 0) {
               this.modelQuotas.set(bucket.modelId, {

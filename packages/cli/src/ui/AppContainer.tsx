@@ -432,6 +432,24 @@ export const AppContainer = (props: AppContainerProps) => {
       setConfigInitialized(true);
       startupProfiler.flush(config);
 
+      // Explicitly refresh quota after init. The init-time
+      // refreshUserQuota() is gated by codeAssistServer.projectId which
+      // may not be available yet during initialize(). This call ensures
+      // modelQuotas is populated and QuotaChanged event is emitted.
+      config
+        .refreshUserQuota()
+        .then(() => {
+          const remaining = config.getQuotaRemaining();
+          const limit = config.getQuotaLimit();
+          const resetTime = config.getQuotaResetTime();
+          if (remaining !== undefined || limit !== undefined) {
+            setQuotaStats({ remaining, limit, resetTime });
+          }
+        })
+        .catch(() => {
+          // Quota refresh is best-effort; ignore errors.
+        });
+
       const sessionStartSource = resumedSessionData
         ? SessionStartSource.Resume
         : SessionStartSource.Startup;
@@ -499,6 +517,14 @@ export const AppContainer = (props: AppContainerProps) => {
   useEffect(() => {
     const handleModelChanged = () => {
       setCurrentModel(config.getModel());
+      // Re-read quota for the new model. For specific models this returns
+      // the per-model quota; for auto models it returns the pooled quota.
+      const remaining = config.getQuotaRemaining();
+      const limit = config.getQuotaLimit();
+      const resetTime = config.getQuotaResetTime();
+      if (remaining !== undefined || limit !== undefined) {
+        setQuotaStats({ remaining, limit, resetTime });
+      }
     };
 
     const handleQuotaChanged = (payload: {
