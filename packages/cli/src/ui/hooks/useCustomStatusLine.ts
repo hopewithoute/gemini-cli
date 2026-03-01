@@ -78,6 +78,7 @@ export function useCustomStatusLine() {
           quotaRemainingPercent !== null
             ? Number(quotaRemainingPercent.toFixed(1))
             : null,
+        quota_reset_time: quotaStats?.resetTime ?? null,
       },
     };
 

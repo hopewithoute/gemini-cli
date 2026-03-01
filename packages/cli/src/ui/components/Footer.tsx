@@ -85,17 +85,6 @@ export const Footer: React.FC = () => {
         <Box width={terminalWidth} paddingX={1}>
           <Text>{output || 'Loading status...'}</Text>
         </Box>
-        {quotaStats && (
-          <Box paddingX={1} width={terminalWidth}>
-            <QuotaDisplay
-              remaining={quotaStats.remaining}
-              limit={quotaStats.limit}
-              resetTime={quotaStats.resetTime}
-              showAlways={true}
-              showCommandPrefix={false}
-            />
-          </Box>
-        )}
       </Box>
     );
   }
