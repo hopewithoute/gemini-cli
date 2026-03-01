@@ -421,6 +421,27 @@ const SETTINGS_SCHEMA = {
     description: 'User interface settings.',
     showInDialog: false,
     properties: {
+      statusLine: {
+        type: 'object',
+        label: 'Status Line',
+        category: 'UI',
+        requiresRestart: false,
+        default: {},
+        description: 'Settings for custom status line.',
+        showInDialog: false,
+        properties: {
+          command: {
+            type: 'string',
+            label: 'Command',
+            category: 'UI',
+            requiresRestart: false,
+            default: undefined as string | undefined,
+            description:
+              'Shell command to execute for custom status line. Receives session state via stdin JSON.',
+            showInDialog: true,
+          },
+        },
+      },
       theme: {
         type: 'string',
         label: 'Theme',

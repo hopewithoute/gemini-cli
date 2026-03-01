@@ -219,6 +219,22 @@
       "default": {},
       "type": "object",
       "properties": {
+        "statusLine": {
+          "title": "Status Line",
+          "description": "Settings for custom status line.",
+          "markdownDescription": "Settings for custom status line.\n\n- Category: `UI`\n- Requires restart: `no`\n- Default: `{}`",
+          "default": {},
+          "type": "object",
+          "properties": {
+            "command": {
+              "title": "Command",
+              "description": "Shell command to execute for custom status line. Receives session state via stdin JSON.",
+              "markdownDescription": "Shell command to execute for custom status line. Receives session state via stdin JSON.\n\n- Category: `UI`\n- Requires restart: `no`",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "theme": {
           "title": "Theme",
           "description": "The color theme for the UI. See the CLI themes guide for available options.",
