@@ -90,6 +90,7 @@ describe('SessionStatsContext', () => {
             totalRequests: 1,
             totalErrors: 0,
             totalLatencyMs: 123,
+            totalTimeToFirstTokenMs: 0,
           },
           tokens: {
             input: 50,
@@ -171,7 +172,12 @@ describe('SessionStatsContext', () => {
     const metrics: SessionMetrics = {
       models: {
         'gemini-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 10,
             prompt: 10,
@@ -214,7 +220,12 @@ describe('SessionStatsContext', () => {
       ...metrics,
       models: {
         'gemini-pro': {
-          api: { totalRequests: 2, totalErrors: 0, totalLatencyMs: 200 },
+          api: {
+            totalRequests: 2,
+            totalErrors: 0,
+            totalLatencyMs: 200,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 20,
             prompt: 20,

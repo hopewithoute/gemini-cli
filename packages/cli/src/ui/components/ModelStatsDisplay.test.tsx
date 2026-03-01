@@ -114,7 +114,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 10,
             prompt: 10,
@@ -158,7 +163,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 5,
             prompt: 10,
@@ -171,7 +181,12 @@ describe('<ModelStatsDisplay />', () => {
           roles: {},
         },
         'gemini-2.5-flash': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 50 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 50,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 5,
             prompt: 5,
@@ -215,7 +230,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 10, totalErrors: 1, totalLatencyMs: 1000 },
+          api: {
+            totalRequests: 10,
+            totalErrors: 1,
+            totalLatencyMs: 1000,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 50,
             prompt: 100,
@@ -228,7 +248,12 @@ describe('<ModelStatsDisplay />', () => {
           roles: {},
         },
         'gemini-2.5-flash': {
-          api: { totalRequests: 20, totalErrors: 2, totalLatencyMs: 500 },
+          api: {
+            totalRequests: 20,
+            totalErrors: 2,
+            totalLatencyMs: 500,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 100,
             prompt: 200,
@@ -275,6 +300,7 @@ describe('<ModelStatsDisplay />', () => {
             totalRequests: 999999999,
             totalErrors: 123456789,
             totalLatencyMs: 9876,
+            totalTimeToFirstTokenMs: 0,
           },
           tokens: {
             input: 987654321 - 123456789,
@@ -315,7 +341,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 5,
             prompt: 10,
@@ -359,7 +390,12 @@ describe('<ModelStatsDisplay />', () => {
       {
         models: {
           'gemini-3-pro-preview': {
-            api: { totalRequests: 10, totalErrors: 0, totalLatencyMs: 2000 },
+            api: {
+              totalRequests: 10,
+              totalErrors: 0,
+              totalLatencyMs: 2000,
+              totalTimeToFirstTokenMs: 0,
+            },
             tokens: {
               input: 1000,
               prompt: 2000,
@@ -372,7 +408,12 @@ describe('<ModelStatsDisplay />', () => {
             roles: {},
           },
           'gemini-3-flash-preview': {
-            api: { totalRequests: 20, totalErrors: 0, totalLatencyMs: 1000 },
+            api: {
+              totalRequests: 20,
+              totalErrors: 0,
+              totalLatencyMs: 1000,
+              totalTimeToFirstTokenMs: 0,
+            },
             tokens: {
               input: 2000,
               prompt: 4000,
@@ -417,7 +458,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 2, totalErrors: 0, totalLatencyMs: 200 },
+          api: {
+            totalRequests: 2,
+            totalErrors: 0,
+            totalLatencyMs: 200,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 20,
             prompt: 30,
@@ -432,6 +478,7 @@ describe('<ModelStatsDisplay />', () => {
               totalRequests: 1,
               totalErrors: 0,
               totalLatencyMs: 100,
+              totalTimeToFirstTokenMs: 0,
               tokens: {
                 input: 10,
                 prompt: 15,
@@ -489,7 +536,12 @@ describe('<ModelStatsDisplay />', () => {
         metrics: {
           models: {
             'gemini-2.5-pro': {
-              api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+              api: {
+                totalRequests: 1,
+                totalErrors: 0,
+                totalLatencyMs: 100,
+                totalTimeToFirstTokenMs: 0,
+              },
               tokens: {
                 input: 10,
                 prompt: 10,
@@ -553,7 +605,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 10,
             prompt: 10,
@@ -568,6 +625,7 @@ describe('<ModelStatsDisplay />', () => {
               totalRequests: 1,
               totalErrors: 0,
               totalLatencyMs: 100,
+              totalTimeToFirstTokenMs: 0,
               tokens: {
                 input: 10,
                 prompt: 10,
@@ -612,7 +670,12 @@ describe('<ModelStatsDisplay />', () => {
     const { lastFrame, unmount } = await renderWithMockedStats({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 10,
             prompt: 10,
@@ -627,6 +690,7 @@ describe('<ModelStatsDisplay />', () => {
               totalRequests: 1,
               totalErrors: 0,
               totalLatencyMs: 100,
+              totalTimeToFirstTokenMs: 0,
               tokens: {
                 input: 10,
                 prompt: 10,

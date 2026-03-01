@@ -237,6 +237,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     responseText?: string,
     generationConfig?: GenerateContentConfig,
     serverDetails?: ServerDetails,
+    timeToFirstTokenMs?: number,
   ): void {
     const event = new ApiResponseEvent(
       model,
@@ -255,6 +256,7 @@ export class LoggingContentGenerator implements ContentGenerator {
       usageMetadata,
       responseText,
       role,
+      timeToFirstTokenMs,
     );
 
     // Only compute context breakdown for turn-ending responses (when the user
@@ -309,6 +311,7 @@ export class LoggingContentGenerator implements ContentGenerator {
     role: LlmRole,
     generationConfig?: GenerateContentConfig,
     serverDetails?: ServerDetails,
+    timeToFirstTokenMs?: number,
   ): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorType = getErrorType(error);
@@ -332,6 +335,7 @@ export class LoggingContentGenerator implements ContentGenerator {
             (error as StructuredError).status
           : undefined,
         role,
+        timeToFirstTokenMs,
       ),
     );
   }
@@ -380,6 +384,8 @@ export class LoggingContentGenerator implements ContentGenerator {
           spanMetadata.attributes[GEN_AI_USAGE_OUTPUT_TOKENS] =
             response.usageMetadata?.candidatesTokenCount ?? 0;
           const durationMs = Date.now() - startTime;
+          // For non-streaming requests, TTFT is effectively the full duration
+          const timeToFirstTokenMs = durationMs;
           this._logApiResponse(
             contents,
             durationMs,
@@ -398,6 +404,7 @@ export class LoggingContentGenerator implements ContentGenerator {
             }),
             req.config,
             serverDetails,
+            timeToFirstTokenMs,
           );
           this.config
             .refreshUserQuotaIfStale()
@@ -517,10 +524,14 @@ export class LoggingContentGenerator implements ContentGenerator {
     const responses: GenerateContentResponse[] = [];
 
     let lastUsageMetadata: GenerateContentResponseUsageMetadata | undefined;
+    let timeToFirstTokenMs: number | undefined;
     const serverDetails = this._getEndpointUrl(req, 'generateContentStream');
     const requestContents: Content[] = toContents(req.contents);
     try {
       for await (const response of stream) {
+        if (responses.length === 0) {
+          timeToFirstTokenMs = Date.now() - startTime;
+        }
         responses.push(response);
         if (response.usageMetadata) {
           lastUsageMetadata = response.usageMetadata;
@@ -549,6 +560,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         ),
         req.config,
         serverDetails,
+        timeToFirstTokenMs,
       );
       this.config
         .refreshUserQuotaIfStale()
@@ -574,6 +586,7 @@ export class LoggingContentGenerator implements ContentGenerator {
         role,
         req.config,
         serverDetails,
+        timeToFirstTokenMs,
       );
       throw error;
     } finally {

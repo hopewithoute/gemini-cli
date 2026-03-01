@@ -84,7 +84,12 @@ describe('<StatsDisplay />', () => {
     const metrics = createTestMetrics({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 3, totalErrors: 0, totalLatencyMs: 15000 },
+          api: {
+            totalRequests: 3,
+            totalErrors: 0,
+            totalLatencyMs: 15000,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 500,
             prompt: 1000,
@@ -97,7 +102,12 @@ describe('<StatsDisplay />', () => {
           roles: {},
         },
         'gemini-2.5-flash': {
-          api: { totalRequests: 5, totalErrors: 1, totalLatencyMs: 4500 },
+          api: {
+            totalRequests: 5,
+            totalErrors: 1,
+            totalLatencyMs: 4500,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 15000,
             prompt: 25000,
@@ -127,7 +137,12 @@ describe('<StatsDisplay />', () => {
     const metrics = createTestMetrics({
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 100,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 50,
             prompt: 100,
@@ -224,7 +239,12 @@ describe('<StatsDisplay />', () => {
       const metrics = createTestMetrics({
         models: {
           'gemini-2.5-pro': {
-            api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+            api: {
+              totalRequests: 1,
+              totalErrors: 0,
+              totalLatencyMs: 100,
+              totalTimeToFirstTokenMs: 0,
+            },
             tokens: {
               input: 100,
               prompt: 100,
@@ -417,7 +437,12 @@ describe('<StatsDisplay />', () => {
       const metrics = createTestMetrics({
         models: {
           'gemini-2.5-pro': {
-            api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 100 },
+            api: {
+              totalRequests: 1,
+              totalErrors: 0,
+              totalLatencyMs: 100,
+              totalTimeToFirstTokenMs: 0,
+            },
             tokens: {
               input: 50,
               prompt: 100,

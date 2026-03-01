@@ -41,6 +41,7 @@ export interface RoleMetrics {
   totalRequests: number;
   totalErrors: number;
   totalLatencyMs: number;
+  totalTimeToFirstTokenMs: number;
   tokens: {
     input: number;
     prompt: number;
@@ -57,6 +58,7 @@ export interface ModelMetrics {
     totalRequests: number;
     totalErrors: number;
     totalLatencyMs: number;
+    totalTimeToFirstTokenMs: number;
   };
   tokens: {
     input: number;
@@ -95,6 +97,7 @@ const createInitialRoleMetrics = (): RoleMetrics => ({
   totalRequests: 0,
   totalErrors: 0,
   totalLatencyMs: 0,
+  totalTimeToFirstTokenMs: 0,
   tokens: {
     input: 0,
     prompt: 0,
@@ -111,6 +114,7 @@ const createInitialModelMetrics = (): ModelMetrics => ({
     totalRequests: 0,
     totalErrors: 0,
     totalLatencyMs: 0,
+    totalTimeToFirstTokenMs: 0,
   },
   tokens: {
     input: 0,
@@ -199,6 +203,8 @@ export class UiTelemetryService extends EventEmitter {
 
     modelMetrics.api.totalRequests++;
     modelMetrics.api.totalLatencyMs += event.duration_ms;
+    modelMetrics.api.totalTimeToFirstTokenMs +=
+      event.time_to_first_token_ms ?? event.duration_ms;
 
     modelMetrics.tokens.prompt += event.usage.input_token_count;
     modelMetrics.tokens.candidates += event.usage.output_token_count;
@@ -218,6 +224,8 @@ export class UiTelemetryService extends EventEmitter {
       const roleMetrics = modelMetrics.roles[event.role]!;
       roleMetrics.totalRequests++;
       roleMetrics.totalLatencyMs += event.duration_ms;
+      roleMetrics.totalTimeToFirstTokenMs +=
+        event.time_to_first_token_ms ?? event.duration_ms;
       roleMetrics.tokens.prompt += event.usage.input_token_count;
       roleMetrics.tokens.candidates += event.usage.output_token_count;
       roleMetrics.tokens.total += event.usage.total_token_count;
@@ -245,6 +253,8 @@ export class UiTelemetryService extends EventEmitter {
       roleMetrics.totalRequests++;
       roleMetrics.totalErrors++;
       roleMetrics.totalLatencyMs += event.duration_ms;
+      roleMetrics.totalTimeToFirstTokenMs +=
+        event.time_to_first_token_ms ?? event.duration_ms;
     }
   }
 

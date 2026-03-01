@@ -41,6 +41,7 @@ export function useCustomStatusLine() {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
     let totalLatencyMs = 0;
+    let totalTimeToFirstTokenMs = 0;
 
     const models = uiState.sessionStats?.metrics?.models;
     if (models) {
@@ -48,13 +49,20 @@ export function useCustomStatusLine() {
         totalInputTokens += metrics.tokens.input || 0;
         totalOutputTokens += metrics.tokens.candidates || 0;
         totalLatencyMs += metrics.api.totalLatencyMs || 0;
+        totalTimeToFirstTokenMs += metrics.api.totalTimeToFirstTokenMs || 0;
       }
     }
 
     const totalTokens = totalInputTokens + totalOutputTokens;
+
+    // Calculate speed excluding the "thinking" or "Time-To-First-Token" phase
+    const generationTimeMs = Math.max(
+      1,
+      totalLatencyMs - totalTimeToFirstTokenMs,
+    );
     const outputTokensPerSecond =
-      totalLatencyMs > 0
-        ? ((totalOutputTokens / totalLatencyMs) * 1000).toFixed(1)
+      generationTimeMs > 0 && totalOutputTokens > 0
+        ? ((totalOutputTokens / generationTimeMs) * 1000).toFixed(1)
         : '0.0';
 
     const quotaStats = uiState.quota.stats;
@@ -79,6 +87,7 @@ export function useCustomStatusLine() {
             ? Number(quotaRemainingPercent.toFixed(1))
             : null,
         quota_reset_time: quotaStats?.resetTime ?? null,
+        ttft_ms: totalTimeToFirstTokenMs,
       },
     };
 

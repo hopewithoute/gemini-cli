@@ -279,6 +279,7 @@ describe('StreamJsonFormatter', () => {
           totalRequests: 1,
           totalErrors: 0,
           totalLatencyMs: 1000,
+          totalTimeToFirstTokenMs: 1000,
         },
         tokens: {
           input: 50,
@@ -310,7 +311,12 @@ describe('StreamJsonFormatter', () => {
     it('should aggregate token counts from multiple models', () => {
       const metrics = createMockMetrics();
       metrics.models['gemini-pro'] = {
-        api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 1000 },
+        api: {
+          totalRequests: 1,
+          totalErrors: 0,
+          totalLatencyMs: 1000,
+          totalTimeToFirstTokenMs: 1000,
+        },
         tokens: {
           input: 50,
           prompt: 50,
@@ -323,7 +329,12 @@ describe('StreamJsonFormatter', () => {
         roles: {},
       };
       metrics.models['gemini-ultra'] = {
-        api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 2000 },
+        api: {
+          totalRequests: 1,
+          totalErrors: 0,
+          totalLatencyMs: 2000,
+          totalTimeToFirstTokenMs: 2000,
+        },
         tokens: {
           input: 100,
           prompt: 100,
@@ -353,7 +364,12 @@ describe('StreamJsonFormatter', () => {
     it('should aggregate cached token counts correctly', () => {
       const metrics = createMockMetrics();
       metrics.models['gemini-pro'] = {
-        api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 1000 },
+        api: {
+          totalRequests: 1,
+          totalErrors: 0,
+          totalLatencyMs: 1000,
+          totalTimeToFirstTokenMs: 1000,
+        },
         tokens: {
           input: 20, // 50 prompt - 30 cached
           prompt: 50,
