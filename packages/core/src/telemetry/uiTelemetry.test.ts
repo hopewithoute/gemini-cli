@@ -171,6 +171,7 @@ describe('UiTelemetryService', () => {
           totalRequests: 1,
           totalErrors: 0,
           totalLatencyMs: 500,
+          totalTimeToFirstTokenMs: 500,
         },
         tokens: {
           input: 5,
@@ -227,6 +228,7 @@ describe('UiTelemetryService', () => {
           totalRequests: 2,
           totalErrors: 0,
           totalLatencyMs: 1100,
+          totalTimeToFirstTokenMs: 1100,
         },
         tokens: {
           input: 10,
@@ -303,6 +305,7 @@ describe('UiTelemetryService', () => {
           totalRequests: 1,
           totalErrors: 1,
           totalLatencyMs: 300,
+          totalTimeToFirstTokenMs: 0,
         },
         tokens: {
           input: 0,
@@ -349,6 +352,7 @@ describe('UiTelemetryService', () => {
           totalRequests: 2,
           totalErrors: 1,
           totalLatencyMs: 800,
+          totalTimeToFirstTokenMs: 500,
         },
         tokens: {
           input: 5,
@@ -379,6 +383,7 @@ describe('UiTelemetryService', () => {
         totalRequests: 1,
         totalErrors: 1,
         totalLatencyMs: 300,
+        totalTimeToFirstTokenMs: 300,
         tokens: {
           input: 0,
           prompt: 0,

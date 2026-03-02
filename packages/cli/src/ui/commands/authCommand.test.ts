@@ -34,11 +34,12 @@ describe('authCommand', () => {
     vi.clearAllMocks();
   });
 
-  it('should have subcommands: login and logout', () => {
+  it('should have subcommands: login, logout, and switch', () => {
     expect(authCommand.subCommands).toBeDefined();
-    expect(authCommand.subCommands).toHaveLength(2);
+    expect(authCommand.subCommands).toHaveLength(3);
     expect(authCommand.subCommands?.[0]?.name).toBe('login');
     expect(authCommand.subCommands?.[1]?.name).toBe('logout');
+    expect(authCommand.subCommands?.[2]?.name).toBe('switch');
   });
 
   it('should return a dialog action to open the auth dialog when called with no args', () => {

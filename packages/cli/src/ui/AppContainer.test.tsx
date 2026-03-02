@@ -167,6 +167,7 @@ vi.mock('./hooks/useLogger.js');
 vi.mock('./hooks/useInputHistoryStore.js');
 vi.mock('./hooks/atCommandProcessor.js');
 vi.mock('./hooks/useHookDisplayState.js');
+vi.mock('./hooks/useExtensionUpdates.js');
 vi.mock('./hooks/useBanner.js', () => ({
   useBanner: vi.fn((bannerData) => ({
     bannerText: (
@@ -226,6 +227,10 @@ import { useLoadingIndicator } from './hooks/useLoadingIndicator.js';
 import { useInputHistoryStore } from './hooks/useInputHistoryStore.js';
 import { useKeypress, type Key } from './hooks/useKeypress.js';
 import * as useKeypressModule from './hooks/useKeypress.js';
+import {
+  useConfirmUpdateRequests,
+  useExtensionUpdates,
+} from './hooks/useExtensionUpdates.js';
 import { useSuspend } from './hooks/useSuspend.js';
 import { measureElement } from 'ink';
 import { useTerminalSize } from './hooks/useTerminalSize.js';
@@ -496,6 +501,17 @@ describe('AppContainer State Management', () => {
       shouldOpenAuthDialog: false,
       geminiMdFileCount: 0,
     } as InitializationResult;
+
+    (useConfirmUpdateRequests as Mock).mockReturnValue({
+      addConfirmUpdateExtensionRequest: vi.fn(),
+      confirmUpdateExtensionRequests: [],
+      dispatchConfirmUpdateExtensionRequests: vi.fn(),
+    });
+    (useExtensionUpdates as Mock).mockReturnValue({
+      extensionsUpdateState: new Map(),
+      extensionsUpdateStateInternal: new Map(),
+      dispatchExtensionStateUpdate: vi.fn(),
+    });
   });
 
   afterEach(() => {

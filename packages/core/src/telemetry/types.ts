@@ -465,6 +465,7 @@ export class ApiErrorEvent implements BaseTelemetryEvent {
   error_type?: string;
   status_code?: number | string;
   duration_ms: number;
+  time_to_first_token_ms?: number;
   auth_type?: string;
   role?: LlmRole;
 
@@ -477,6 +478,7 @@ export class ApiErrorEvent implements BaseTelemetryEvent {
     error_type?: string,
     status_code?: number | string,
     role?: LlmRole,
+    time_to_first_token_ms?: number,
   ) {
     this['event.name'] = 'api_error';
     this['event.timestamp'] = new Date().toISOString();
@@ -485,6 +487,7 @@ export class ApiErrorEvent implements BaseTelemetryEvent {
     this.error_type = error_type;
     this.status_code = status_code;
     this.duration_ms = duration_ms;
+    this.time_to_first_token_ms = time_to_first_token_ms;
     this.prompt = prompt_details;
     this.auth_type = auth_type;
     this.role = role;
@@ -505,6 +508,10 @@ export class ApiErrorEvent implements BaseTelemetryEvent {
       prompt_id: this.prompt.prompt_id,
       auth_type: this.auth_type,
     };
+
+    if (this.time_to_first_token_ms !== undefined) {
+      attributes['time_to_first_token_ms'] = this.time_to_first_token_ms;
+    }
 
     if (this.role) {
       attributes['role'] = this.role;
@@ -619,6 +626,7 @@ export class ApiResponseEvent implements BaseTelemetryEvent {
   'event.timestamp': string;
   status_code?: number | string;
   duration_ms: number;
+  time_to_first_token_ms?: number;
   response_text?: string;
   auth_type?: string;
 
@@ -638,10 +646,12 @@ export class ApiResponseEvent implements BaseTelemetryEvent {
     usage_data?: GenerateContentResponseUsageMetadata,
     response_text?: string,
     role?: LlmRole,
+    time_to_first_token_ms?: number,
   ) {
     this['event.name'] = 'api_response';
     this['event.timestamp'] = new Date().toISOString();
     this.duration_ms = duration_ms;
+    this.time_to_first_token_ms = time_to_first_token_ms;
     this.status_code = 200;
     this.response_text = response_text;
     this.auth_type = auth_type;
@@ -685,6 +695,9 @@ export class ApiResponseEvent implements BaseTelemetryEvent {
     if (this.response_text) {
       attributes['response_text'] = this.response_text;
     }
+    if (this.time_to_first_token_ms !== undefined) {
+      attributes['time_to_first_token_ms'] = this.time_to_first_token_ms;
+    }
     if (this.status_code) {
       if (typeof this.status_code === 'number') {
         attributes[SemanticAttributes.HTTP_STATUS_CODE] = this.status_code;
@@ -725,6 +738,11 @@ export class ApiResponseEvent implements BaseTelemetryEvent {
     if (this.usage) {
       attributes['gen_ai.usage.input_tokens'] = this.usage.input_token_count;
       attributes['gen_ai.usage.output_tokens'] = this.usage.output_token_count;
+    }
+
+    if (this.time_to_first_token_ms !== undefined) {
+      attributes['gen_ai.usage.time_to_first_token'] =
+        this.time_to_first_token_ms;
     }
 
     const logRecord: LogRecord = {

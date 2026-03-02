@@ -78,6 +78,7 @@ describe('useCustomStatusLine()', () => {
         expect.objectContaining({
           usage: expect.objectContaining({
             quota_remaining_percent: null,
+            ttft_ms: 0,
           }),
         }),
         expect.any(AbortSignal),

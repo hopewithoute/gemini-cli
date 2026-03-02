@@ -50,7 +50,12 @@ describe('<SessionSummaryDisplay />', () => {
     const metrics: SessionMetrics = {
       models: {
         'gemini-2.5-pro': {
-          api: { totalRequests: 10, totalErrors: 1, totalLatencyMs: 50234 },
+          api: {
+            totalRequests: 10,
+            totalErrors: 1,
+            totalLatencyMs: 50234,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 500,
             prompt: 1000,

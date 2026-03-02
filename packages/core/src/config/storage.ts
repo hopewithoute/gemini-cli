@@ -18,6 +18,7 @@ import {
 } from '../utils/paths.js';
 import { ProjectRegistry } from './projectRegistry.js';
 import { StorageMigration } from './storageMigration.js';
+import { ProfileManager } from './profileManager.js';
 
 export const OAUTH_FILE = 'oauth_creds.json';
 const TMP_DIR_NAME = 'tmp';
@@ -177,7 +178,9 @@ export class Storage {
   }
 
   static getOAuthCredsPath(): string {
-    return path.join(Storage.getGlobalGeminiDir(), OAUTH_FILE);
+    const profileId = ProfileManager.getActiveProfileIdSync();
+    const suffix = profileId === 'default' ? '' : `_${profileId}`;
+    return path.join(Storage.getGlobalGeminiDir(), `oauth_creds${suffix}.json`);
   }
 
   getProjectRoot(): string {

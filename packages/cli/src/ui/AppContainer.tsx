@@ -764,6 +764,8 @@ export const AppContainer = (props: AppContainerProps) => {
     handleResumeSession,
     handleDeleteSession: handleDeleteSessionSync,
   } = useSessionBrowser(config, loadHistoryForResume);
+  const [isAccountSwitcherDialogOpen, setIsAccountSwitcherDialogOpen] =
+    useState(false);
   // Wrap handleDeleteSession to return a Promise for UIActions interface
   const handleDeleteSession = useCallback(
     async (session: SessionInfo): Promise<void> => {
@@ -948,6 +950,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
         }
       },
       toggleShortcutsHelp: () => setShortcutsHelpVisible((visible) => !visible),
+      openAccountSwitcherDialog: () => setIsAccountSwitcherDialogOpen(true),
       setText: stableSetText,
     }),
     [
@@ -967,6 +970,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       addConfirmUpdateExtensionRequest,
       toggleDebugProfiler,
       setShortcutsHelpVisible,
+      setIsAccountSwitcherDialogOpen,
       stableSetText,
     ],
   );
@@ -2067,6 +2071,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
     !!overageMenuRequest ||
     !!emptyWalletRequest ||
     isSessionBrowserOpen ||
+    isAccountSwitcherDialogOpen ||
     authState === AuthState.AwaitingApiKeyInput ||
     !!newAgents;
 
@@ -2247,6 +2252,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       quittingMessages,
       isSettingsDialogOpen,
       isSessionBrowserOpen,
+      isAccountSwitcherDialogOpen,
       isModelDialogOpen,
       isAgentConfigDialogOpen,
       selectedAgentName,
@@ -2301,6 +2307,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       showApprovalModeIndicator,
       allowPlanMode,
       currentModel,
+      hasPendingActionRequired,
       quota: {
         userTier,
         stats: quotaStats,
@@ -2377,6 +2384,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       quittingMessages,
       isSettingsDialogOpen,
       isSessionBrowserOpen,
+      isAccountSwitcherDialogOpen,
       isModelDialogOpen,
       isAgentConfigDialogOpen,
       selectedAgentName,
@@ -2480,6 +2488,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       adminSettingsChanged,
       newAgents,
       showIsExpandableHint,
+      hasPendingActionRequired,
     ],
   );
 
@@ -2522,6 +2531,8 @@ Logging in with Google... Restarting Gemini CLI to continue.
       handleEmptyWalletChoice,
       openSessionBrowser,
       closeSessionBrowser,
+      openAccountSwitcherDialog: () => setIsAccountSwitcherDialogOpen(true),
+      closeAccountSwitcherDialog: () => setIsAccountSwitcherDialogOpen(false),
       handleResumeSession,
       handleDeleteSession,
       setQueueErrorMessage,
@@ -2632,6 +2643,7 @@ Logging in with Google... Restarting Gemini CLI to continue.
       setIsBackgroundShellListOpen,
       setAuthContext,
       setAccountSuspensionInfo,
+      setIsAccountSwitcherDialogOpen,
       newAgents,
       config,
       historyManager,

@@ -19,7 +19,12 @@ import type {
 describe('calculateErrorRate', () => {
   it('should return 0 if totalRequests is 0', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 0, totalErrors: 0, totalLatencyMs: 0 },
+      api: {
+        totalRequests: 0,
+        totalErrors: 0,
+        totalLatencyMs: 0,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 0,
         prompt: 0,
@@ -36,7 +41,12 @@ describe('calculateErrorRate', () => {
 
   it('should calculate the error rate correctly', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 10, totalErrors: 2, totalLatencyMs: 0 },
+      api: {
+        totalRequests: 10,
+        totalErrors: 2,
+        totalLatencyMs: 0,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 0,
         prompt: 0,
@@ -55,7 +65,12 @@ describe('calculateErrorRate', () => {
 describe('calculateAverageLatency', () => {
   it('should return 0 if totalRequests is 0', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 0, totalErrors: 0, totalLatencyMs: 1000 },
+      api: {
+        totalRequests: 0,
+        totalErrors: 0,
+        totalLatencyMs: 1000,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 0,
         prompt: 0,
@@ -72,7 +87,12 @@ describe('calculateAverageLatency', () => {
 
   it('should calculate the average latency correctly', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 10, totalErrors: 0, totalLatencyMs: 1500 },
+      api: {
+        totalRequests: 10,
+        totalErrors: 0,
+        totalLatencyMs: 1500,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 0,
         prompt: 0,
@@ -91,7 +111,12 @@ describe('calculateAverageLatency', () => {
 describe('calculateCacheHitRate', () => {
   it('should return 0 if prompt tokens is 0', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 0, totalErrors: 0, totalLatencyMs: 0 },
+      api: {
+        totalRequests: 0,
+        totalErrors: 0,
+        totalLatencyMs: 0,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 0,
         prompt: 0,
@@ -108,7 +133,12 @@ describe('calculateCacheHitRate', () => {
 
   it('should calculate the cache hit rate correctly', () => {
     const metrics: ModelMetrics = {
-      api: { totalRequests: 0, totalErrors: 0, totalLatencyMs: 0 },
+      api: {
+        totalRequests: 0,
+        totalErrors: 0,
+        totalLatencyMs: 0,
+        totalTimeToFirstTokenMs: 0,
+      },
       tokens: {
         input: 150,
         prompt: 200,
@@ -166,7 +196,12 @@ describe('computeSessionStats', () => {
     const metrics: SessionMetrics = {
       models: {
         'gemini-pro': {
-          api: { totalRequests: 1, totalErrors: 0, totalLatencyMs: 750 },
+          api: {
+            totalRequests: 1,
+            totalErrors: 0,
+            totalLatencyMs: 750,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 10,
             prompt: 10,
@@ -206,7 +241,12 @@ describe('computeSessionStats', () => {
     const metrics: SessionMetrics = {
       models: {
         'gemini-pro': {
-          api: { totalRequests: 2, totalErrors: 0, totalLatencyMs: 1000 },
+          api: {
+            totalRequests: 2,
+            totalErrors: 0,
+            totalLatencyMs: 1000,
+            totalTimeToFirstTokenMs: 0,
+          },
           tokens: {
             input: 100,
             prompt: 150,

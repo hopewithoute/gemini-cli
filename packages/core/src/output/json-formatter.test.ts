@@ -69,6 +69,7 @@ describe('JsonFormatter', () => {
             totalRequests: 2,
             totalErrors: 0,
             totalLatencyMs: 5672,
+            totalTimeToFirstTokenMs: 5672,
           },
           tokens: {
             input: 13745,
@@ -86,6 +87,7 @@ describe('JsonFormatter', () => {
             totalRequests: 2,
             totalErrors: 0,
             totalLatencyMs: 5914,
+            totalTimeToFirstTokenMs: 5914,
           },
           tokens: {
             input: 20803,

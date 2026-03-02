@@ -61,6 +61,9 @@ vi.mock('./IdeTrustChangeDialog.js', () => ({
 vi.mock('./AgentConfigDialog.js', () => ({
   AgentConfigDialog: () => <Text>AgentConfigDialog</Text>,
 }));
+vi.mock('../auth/AccountSwitcherDialog.js', () => ({
+  AccountSwitcherDialog: () => <Text>AccountSwitcherDialog</Text>,
+}));
 
 describe('DialogManager', () => {
   const defaultProps = {
@@ -98,6 +101,7 @@ describe('DialogManager', () => {
     showPrivacyNotice: false,
     isPermissionsDialogOpen: false,
     isAgentConfigDialogOpen: false,
+    isAccountSwitcherDialogOpen: false,
     selectedAgentName: undefined,
     selectedAgentDisplayName: undefined,
     selectedAgentDefinition: undefined,
@@ -175,6 +179,7 @@ describe('DialogManager', () => {
     [{ isEditorDialogOpen: true }, 'EditorSettingsDialog'],
     [{ showPrivacyNotice: true }, 'PrivacyNotice'],
     [{ isPermissionsDialogOpen: true }, 'PermissionsModifyTrustDialog'],
+    [{ isAccountSwitcherDialogOpen: true }, 'AccountSwitcherDialog'],
     [
       {
         isAgentConfigDialogOpen: true,
