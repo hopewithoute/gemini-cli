@@ -117,7 +117,7 @@ async function handlePromotion(config: Config) {
 /**
  * Initializes the activity logger.
  * Interception starts immediately in buffering mode.
- * If an existing DevTools server is found, attaches transport eagerly.
+ * Automatically starts or joins the DevTools server.
  */
 export async function setupInitialActivityLogger(config: Config) {
   const target = process.env['GEMINI_CLI_ACTIVITY_LOG_TARGET'];
@@ -129,26 +129,11 @@ export async function setupInitialActivityLogger(config: Config) {
     // Start in buffering mode (no transport attached yet)
     initActivityLogger(config, { mode: 'buffer' });
 
-    // Eagerly probe for an existing DevTools server
+    // Automatically start or join the DevTools server
     try {
-      const existing = await probeDevTools(
-        DEFAULT_DEVTOOLS_HOST,
-        DEFAULT_DEVTOOLS_PORT,
-      );
-      if (existing) {
-        const onReconnectFailed = () => handlePromotion(config);
-        addNetworkTransport(
-          config,
-          DEFAULT_DEVTOOLS_HOST,
-          DEFAULT_DEVTOOLS_PORT,
-          onReconnectFailed,
-        );
-        ActivityLogger.getInstance().enableNetworkLogging();
-        connectedUrl = `http://localhost:${DEFAULT_DEVTOOLS_PORT}`;
-        debugLogger.log(`DevTools (existing) at startup: ${connectedUrl}`);
-      }
+      await startDevToolsServer(config);
     } catch {
-      // Probe failed silently — stay in buffer mode
+      // Failed to start — stay in buffer mode
     }
   }
 }

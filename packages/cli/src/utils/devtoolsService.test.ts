@@ -123,8 +123,11 @@ describe('devtoolsService', () => {
   });
 
   describe('setupInitialActivityLogger', () => {
-    it('stays in buffer mode when no existing server found', async () => {
+    it('automatically starts new server when no existing server found', async () => {
       const config = createMockConfig();
+      mockDevToolsInstance.start.mockResolvedValue('http://127.0.0.1:25417');
+      mockDevToolsInstance.getPort.mockReturnValue(25417);
+
       const promise = setupInitialActivityLogger(config);
 
       // Probe fires immediately — no server running
@@ -136,7 +139,15 @@ describe('devtoolsService', () => {
       expect(mockInitActivityLogger).toHaveBeenCalledWith(config, {
         mode: 'buffer',
       });
-      expect(mockAddNetworkTransport).not.toHaveBeenCalled();
+      expect(mockAddNetworkTransport).toHaveBeenCalledWith(
+        config,
+        '127.0.0.1',
+        25417,
+        expect.any(Function),
+      );
+      expect(
+        mockActivityLoggerInstance.enableNetworkLogging,
+      ).toHaveBeenCalled();
     });
 
     it('attaches transport when existing server found at startup', async () => {
