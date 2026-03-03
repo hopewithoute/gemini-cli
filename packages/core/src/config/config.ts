@@ -144,6 +144,8 @@ import { CheckerRunner } from '../safety/checker-runner.js';
 import { ContextBuilder } from '../safety/context-builder.js';
 import { CheckerRegistry } from '../safety/registry.js';
 import { ConsecaSafetyChecker } from '../safety/conseca/conseca.js';
+import { MetaToolRegistry } from '../tools/meta-tool-registry.js';
+import { SemanticSearchService } from '../tools/semantic-search-service.js';
 
 export interface AccessibilitySettings {
   /** @deprecated Use ui.loadingPhrases instead. */
@@ -556,6 +558,7 @@ export interface ConfigParameters {
   disabledHooks?: string[];
   projectHooks?: { [K in HookEventName]?: HookDefinition[] };
   enableAgents?: boolean;
+  useMetaTools?: boolean;
   enableEventDrivenScheduler?: boolean;
   skillsSupport?: boolean;
   disabledSkills?: string[];
@@ -765,6 +768,7 @@ export class Config implements McpContext {
   };
 
   private readonly enableAgents: boolean;
+  private readonly useMetaTools: boolean;
   private agents: AgentSettings;
   private readonly enableEventDrivenScheduler: boolean;
   private readonly skillsSupport: boolean;
@@ -861,6 +865,7 @@ export class Config implements McpContext {
     this.disableLoopDetection = params.disableLoopDetection ?? false;
     this._activeModel = params.model;
     this.enableAgents = params.enableAgents ?? false;
+    this.useMetaTools = params.useMetaTools ?? false;
     this.agents = params.agents ?? {};
     this.disableLLMCorrection = params.disableLLMCorrection ?? true;
     this.planEnabled = params.plan ?? false;
@@ -1115,6 +1120,13 @@ export class Config implements McpContext {
     coreEvents.on(CoreEvent.AgentsRefreshed, this.onAgentsRefreshed);
 
     this.toolRegistry = await this.createToolRegistry();
+    if (this.isMetaToolsEnabled()) {
+      const semanticSearchService = new SemanticSearchService(this);
+      this.toolRegistry = new MetaToolRegistry(
+        this.toolRegistry,
+        semanticSearchService,
+      );
+    }
     discoverToolsHandle?.end();
     this.mcpClientManager = new McpClientManager(
       this.clientVersion,
@@ -2325,6 +2337,10 @@ export class Config implements McpContext {
 
   isAgentsEnabled(): boolean {
     return this.enableAgents;
+  }
+
+  isMetaToolsEnabled(): boolean {
+    return this.useMetaTools;
   }
 
   isEventDrivenSchedulerEnabled(): boolean {

@@ -197,13 +197,17 @@ export class ToolRegistry {
   // The tools keyed by tool name as seen by the LLM.
   // This includes tools which are currently not active, use `getActiveTools`
   // and `isActive` to get only the active tools.
-  private allKnownTools: Map<string, AnyDeclarativeTool> = new Map();
-  private config: Config;
-  private messageBus: MessageBus;
+  protected allKnownTools: Map<string, AnyDeclarativeTool> = new Map();
+  protected config: Config;
+  protected messageBus: MessageBus;
 
   constructor(config: Config, messageBus: MessageBus) {
     this.config = config;
     this.messageBus = messageBus;
+  }
+
+  getConfig(): Config {
+    return this.config;
   }
 
   getMessageBus(): MessageBus {

@@ -99,6 +99,12 @@ vi.mock('../tools/ripGrep.js', () => ({
   canUseRipgrep: vi.fn(),
   RipGrepTool: class MockRipGrepTool {},
 }));
+vi.mock('../tools/meta-tool-registry.js', () => ({
+  MetaToolRegistry: vi.fn().mockImplementation((registry) => registry),
+}));
+vi.mock('../tools/semantic-search-service.js', () => ({
+  SemanticSearchService: vi.fn(),
+}));
 vi.mock('../tools/glob');
 vi.mock('../tools/edit');
 vi.mock('../tools/shell');
@@ -334,6 +340,18 @@ describe('Server Config (config.ts)', () => {
       ]);
 
       expect(storageSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should wrap ToolRegistry with MetaToolRegistry when useMetaTools is enabled', async () => {
+      const { MetaToolRegistry } = await import('../tools/meta-tool-registry.js');
+      const params: ConfigParameters = {
+        ...baseParams,
+        useMetaTools: true,
+      };
+      const config = new Config(params);
+      await config.initialize();
+
+      expect(MetaToolRegistry).toHaveBeenCalled();
     });
 
     it('should await MCP initialization in non-interactive mode', async () => {
