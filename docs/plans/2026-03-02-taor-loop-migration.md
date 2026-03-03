@@ -1,26 +1,38 @@
 # TAORLoop Migration Implementation Plan
 
-> **For Antigravity:** REQUIRED WORKFLOW: Use `.agent/workflows/execute-plan.md` to execute this plan in single-flow mode.
+> **For Antigravity:** REQUIRED WORKFLOW: Use `.agent/workflows/execute-plan.md`
+> to execute this plan in single-flow mode.
 
-**Goal:** Migrate the Gemini CLI agentic loop from recursive generator delegation to a unified flat `TAORLoop` abstraction, enabling sub-agent spawning with independent context windows.
+**Goal:** Migrate the Gemini CLI agentic loop from recursive generator
+delegation to a unified flat `TAORLoop` abstraction, enabling sub-agent spawning
+with independent context windows.
 
-**Architecture:** Extract loop logic from `LocalAgentExecutor` (already TAOR-style `while(true)`), generalize it into a shared `TAORLoop` class that yields `AsyncGenerator` events. Refactor `GeminiClient` to use `TAORLoop` instead of recursive `sendMessageStream`/`processTurn`. Refactor `LocalAgentExecutor` to delegate to `TAORLoop`. Simplify `useGeminiStream` by removing the `handleCompletedTools → submitQuery(isContinuation)` feedback loop.
+**Architecture:** Extract loop logic from `LocalAgentExecutor` (already
+TAOR-style `while(true)`), generalize it into a shared `TAORLoop` class that
+yields `AsyncGenerator` events. Refactor `GeminiClient` to use `TAORLoop`
+instead of recursive `sendMessageStream`/`processTurn`. Refactor
+`LocalAgentExecutor` to delegate to `TAORLoop`. Simplify `useGeminiStream` by
+removing the `handleCompletedTools → submitQuery(isContinuation)` feedback loop.
 
 **Tech Stack:** TypeScript, Vitest, AsyncGenerators, `@google/genai` SDK
 
-**Design Doc:** [2026-03-02-taor-loop-migration-design.md](file:///var/www/gemini-cli/docs/plans/2026-03-02-taor-loop-migration-design.md)
+**Design Doc:**
+[2026-03-02-taor-loop-migration-design.md](file:///var/www/gemini-cli/docs/plans/2026-03-02-taor-loop-migration-design.md)
 
 ---
 
 ### Task 1: Create `TAORLoop` Core Class with Types
 
 **Files:**
+
 - Create: `packages/core/src/core/taorLoop.ts`
 - Create: `packages/core/src/core/taorLoop.test.ts`
 
 **Step 1: Define the TAORLoop types and interface**
 
-Create `packages/core/src/core/taorLoop.ts` with the core types and class skeleton. Extract the turn result pattern from `LocalAgentExecutor.executeTurn()` (L73-82 in `local-executor.ts`):
+Create `packages/core/src/core/taorLoop.ts` with the core types and class
+skeleton. Extract the turn result pattern from
+`LocalAgentExecutor.executeTurn()` (L73-82 in `local-executor.ts`):
 
 ```typescript
 /**
@@ -54,7 +66,13 @@ export interface TAORResult {
 }
 
 export type TAORActivityEvent = {
-  type: 'THOUGHT_CHUNK' | 'TOOL_CALL_START' | 'TOOL_CALL_END' | 'ERROR' | 'TURN_COMPLETE' | 'CONTENT_CHUNK';
+  type:
+    | 'THOUGHT_CHUNK'
+    | 'TOOL_CALL_START'
+    | 'TOOL_CALL_END'
+    | 'ERROR'
+    | 'TURN_COMPLETE'
+    | 'CONTENT_CHUNK';
   agentName: string;
   data: Record<string, unknown>;
 };
@@ -145,12 +163,14 @@ git commit -m "feat(core): add TAORLoop class skeleton with types"
 ### Task 2: Implement TAORLoop THINK-ACT-OBSERVE-REPEAT Core
 
 **Files:**
+
 - Modify: `packages/core/src/core/taorLoop.ts`
 - Modify: `packages/core/src/core/taorLoop.test.ts`
 
 **Step 1: Write failing test for the TAOR loop with tool calls**
 
 Add to `taorLoop.test.ts` a test that verifies:
+
 - Loop calls `Turn.run()` (THINK)
 - When Turn yields `ToolCallRequest`, loop executes tools (ACT)
 - Tool results are appended to chat (OBSERVE)
@@ -165,7 +185,9 @@ Expected: FAIL (run method returns stub)
 
 **Step 3: Implement the TAOR loop**
 
-Replace the `run()` stub with the actual `while` loop. Model the implementation after `LocalAgentExecutor.run()` (L492-541 in `local-executor.ts`), but yield `ServerGeminiStreamEvent` events for UI consumption:
+Replace the `run()` stub with the actual `while` loop. Model the implementation
+after `LocalAgentExecutor.run()` (L492-541 in `local-executor.ts`), but yield
+`ServerGeminiStreamEvent` events for UI consumption:
 
 ```typescript
 async *run(query, signal, promptId) {
@@ -223,12 +245,14 @@ git commit -m "feat(core): implement TAORLoop THINK-ACT-OBSERVE-REPEAT core"
 ### Task 3: Add Compression, Loop Detection, and Hooks to TAORLoop
 
 **Files:**
+
 - Modify: `packages/core/src/core/taorLoop.ts`
 - Modify: `packages/core/src/core/taorLoop.test.ts`
 
 **Step 1: Write failing tests for compression and hook integration**
 
 Test that:
+
 - `beforeAgent` hook fires before first turn
 - `afterAgent` hook fires after last turn
 - Chat compression triggers when token count is high
@@ -241,7 +265,9 @@ Expected: FAIL
 
 **Step 3: Implement compression and hooks**
 
-Port compression logic from `GeminiClient.processTurn()` (L577-588 in `client.ts`) and hook firing from `GeminiClient.sendMessageStream()` (L830-860 in `client.ts`) into `TAORLoop.run()`.
+Port compression logic from `GeminiClient.processTurn()` (L577-588 in
+`client.ts`) and hook firing from `GeminiClient.sendMessageStream()` (L830-860
+in `client.ts`) into `TAORLoop.run()`.
 
 **Step 4: Run tests to verify they pass**
 
@@ -260,17 +286,19 @@ git commit -m "feat(core): add compression, loop detection, and hooks to TAORLoo
 ### Task 4: Refactor GeminiClient to Delegate to TAORLoop
 
 **Files:**
+
 - Modify: `packages/core/src/core/client.ts`
 - Modify: `packages/core/src/core/client.test.ts`
 
 **Step 1: Run existing tests as baseline**
 
-Run: `npm test -w @google/gemini-cli-core -- src/core/client.test.ts`
-Expected: PASS (all 3279 lines of existing tests)
+Run: `npm test -w @google/gemini-cli-core -- src/core/client.test.ts` Expected:
+PASS (all 3279 lines of existing tests)
 
 **Step 2: Refactor `sendMessageStream` to use TAORLoop**
 
-Replace recursive `sendMessageStream` (L789-925) and `processTurn` (L550-787) with:
+Replace recursive `sendMessageStream` (L789-925) and `processTurn` (L550-787)
+with:
 
 ```typescript
 async *sendMessageStream(request, signal, prompt_id, turns = MAX_TURNS) {
@@ -282,12 +310,13 @@ async *sendMessageStream(request, signal, prompt_id, turns = MAX_TURNS) {
 }
 ```
 
-Keep `GeminiClient` as the public API — it manages chat creation, system prompt, IDE context, and tool registration. `TAORLoop` handles only the loop.
+Keep `GeminiClient` as the public API — it manages chat creation, system prompt,
+IDE context, and tool registration. `TAORLoop` handles only the loop.
 
 **Step 3: Run existing tests to verify backward compatibility**
 
-Run: `npm test -w @google/gemini-cli-core -- src/core/client.test.ts`
-Expected: PASS (all existing tests must still pass)
+Run: `npm test -w @google/gemini-cli-core -- src/core/client.test.ts` Expected:
+PASS (all existing tests must still pass)
 
 **Step 4: Commit**
 
@@ -301,6 +330,7 @@ git commit -m "refactor(core): delegate GeminiClient.sendMessageStream to TAORLo
 ### Task 5: Refactor LocalAgentExecutor to Use TAORLoop
 
 **Files:**
+
 - Modify: `packages/core/src/agents/local-executor.ts`
 - Modify: `packages/core/src/agents/local-executor.test.ts`
 
@@ -311,7 +341,8 @@ Expected: PASS (all 2454 lines of existing tests)
 
 **Step 2: Replace internal while loop with TAORLoop**
 
-Replace `LocalAgentExecutor.run()` (L492-541) internal `while(true)` and `executeTurn()`, `callModel()` methods with `TAORLoop.runToCompletion()`.
+Replace `LocalAgentExecutor.run()` (L492-541) internal `while(true)` and
+`executeTurn()`, `callModel()` methods with `TAORLoop.runToCompletion()`.
 
 **Step 3: Run existing tests to verify backward compatibility**
 
@@ -330,29 +361,30 @@ git commit -m "refactor(agents): delegate LocalAgentExecutor to TAORLoop"
 ### Task 6: Simplify useGeminiStream CLI Consumer
 
 **Files:**
+
 - Modify: `packages/cli/src/ui/hooks/useGeminiStream.ts`
 
 **Step 1: Run existing tests as baseline**
 
-Run: `npm test -w @google/gemini-cli`
-Expected: PASS
+Run: `npm test -w @google/gemini-cli` Expected: PASS
 
 **Step 2: Remove the `handleCompletedTools → submitQuery(isContinuation)` flow**
 
 Since tool execution now happens inside `TAORLoop`, the CLI only needs to:
+
 1. Start the stream: `geminiClient.sendMessageStream(query)`
 2. Render events as they arrive
 3. No restart/continuation logic needed
 
 Remove or simplify:
+
 - `handleCompletedTools()` callback restart logic
 - `isContinuation` parameter in `submitQuery()`
 - `CoreToolScheduler` callbacks that trigger continuation
 
 **Step 3: Run tests to verify**
 
-Run: `npm test -w @google/gemini-cli`
-Expected: PASS
+Run: `npm test -w @google/gemini-cli` Expected: PASS
 
 **Step 4: Commit**
 
@@ -366,26 +398,31 @@ git commit -m "refactor(cli): simplify useGeminiStream by removing tool feedback
 ### Task 7: Add Extended Activity Events (TURN_COMPLETE, CONTENT_CHUNK)
 
 **Files:**
+
 - Modify: `packages/core/src/agents/types.ts`
 - Modify: `packages/core/src/core/taorLoop.ts`
 - Create: `packages/core/src/core/taorLoop.integration.test.ts`
 
 **Step 1: Write failing test for new event types**
 
-Test that `TAORLoop` emits `TURN_COMPLETE` after each turn and `CONTENT_CHUNK` for streaming text.
+Test that `TAORLoop` emits `TURN_COMPLETE` after each turn and `CONTENT_CHUNK`
+for streaming text.
 
 **Step 2: Run test to verify it fails**
 
-Run: `npm test -w @google/gemini-cli-core -- src/core/taorLoop.integration.test.ts`
+Run:
+`npm test -w @google/gemini-cli-core -- src/core/taorLoop.integration.test.ts`
 Expected: FAIL
 
 **Step 3: Extend SubagentActivityEvent type and implement emissions**
 
-Add `'TURN_COMPLETE' | 'CONTENT_CHUNK'` to the `SubagentActivityEvent.type` union in `types.ts`.
+Add `'TURN_COMPLETE' | 'CONTENT_CHUNK'` to the `SubagentActivityEvent.type`
+union in `types.ts`.
 
 **Step 4: Run test to verify it passes**
 
-Run: `npm test -w @google/gemini-cli-core -- src/core/taorLoop.integration.test.ts`
+Run:
+`npm test -w @google/gemini-cli-core -- src/core/taorLoop.integration.test.ts`
 Expected: PASS
 
 **Step 5: Commit**
@@ -400,28 +437,30 @@ git commit -m "feat(core): add TURN_COMPLETE and CONTENT_CHUNK activity events"
 ### Task 8: Export TAORLoop from Package and Final Verification
 
 **Files:**
+
 - Modify: `packages/core/src/index.ts` (add TAORLoop export)
 
 **Step 1: Add export**
 
 ```typescript
-export { TAORLoop, type TAORLoopConfig, type TAORResult } from './core/taorLoop.js';
+export {
+  TAORLoop,
+  type TAORLoopConfig,
+  type TAORResult,
+} from './core/taorLoop.js';
 ```
 
 **Step 2: Run full test suite**
 
-Run: `npm run test`
-Expected: ALL PASS
+Run: `npm run test` Expected: ALL PASS
 
 **Step 3: Run typecheck**
 
-Run: `npm run typecheck`
-Expected: PASS
+Run: `npm run typecheck` Expected: PASS
 
 **Step 4: Run lint**
 
-Run: `npm run lint`
-Expected: PASS
+Run: `npm run lint` Expected: PASS
 
 **Step 5: Commit**
 
@@ -436,10 +475,12 @@ git commit -m "feat(core): export TAORLoop from package"
 
 **Step 1: Run full preflight**
 
-Run: `npm run preflight`
-Expected: PASS (clean, install, build, lint, typecheck, tests)
+Run: `npm run preflight` Expected: PASS (clean, install, build, lint, typecheck,
+tests)
 
 **Step 2: Verify LOC reduction**
 
-Run: `wc -l packages/core/src/core/client.ts packages/cli/src/ui/hooks/useGeminiStream.ts`
-Expected: `client.ts` < 800 LOC (was 1121), `useGeminiStream.ts` < 1000 LOC (was 1903)
+Run:
+`wc -l packages/core/src/core/client.ts packages/cli/src/ui/hooks/useGeminiStream.ts`
+Expected: `client.ts` < 800 LOC (was 1121), `useGeminiStream.ts` < 1000 LOC
+(was 1903)
