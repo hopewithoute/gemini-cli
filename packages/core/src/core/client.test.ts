@@ -361,9 +361,13 @@ describe('Gemini Client (client.ts)', () => {
   describe('setTools', () => {
     it('should delegate to config.getToolRegistry()', async () => {
       const mockToolRegistry = {
-        getFunctionDeclarations: vi.fn().mockReturnValue([{ name: 'test_tool' }]),
+        getFunctionDeclarations: vi
+          .fn()
+          .mockReturnValue([{ name: 'test_tool' }]),
       };
-      vi.mocked(mockConfig.getToolRegistry).mockReturnValue(mockToolRegistry as unknown as ToolRegistry);
+      vi.mocked(mockConfig.getToolRegistry).mockReturnValue(
+        mockToolRegistry as unknown as ToolRegistry,
+      );
 
       const mockChat = client.getChat();
       const setToolsSpy = vi.spyOn(mockChat, 'setTools');
@@ -371,7 +375,9 @@ describe('Gemini Client (client.ts)', () => {
       await client.setTools('test-model');
 
       expect(mockConfig.getToolRegistry).toHaveBeenCalled();
-      expect(mockToolRegistry.getFunctionDeclarations).toHaveBeenCalledWith('test-model');
+      expect(mockToolRegistry.getFunctionDeclarations).toHaveBeenCalledWith(
+        'test-model',
+      );
       expect(setToolsSpy).toHaveBeenCalledWith([
         { functionDeclarations: [{ name: 'test_tool' }] },
       ]);

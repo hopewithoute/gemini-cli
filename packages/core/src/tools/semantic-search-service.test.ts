@@ -80,7 +80,9 @@ describe('SemanticSearchService', () => {
       candidates: [
         {
           content: {
-            parts: [{ text: JSON.stringify(['tool1', 'tool2', 'tool3', 'tool4']) }],
+            parts: [
+              { text: JSON.stringify(['tool1', 'tool2', 'tool3', 'tool4']) },
+            ],
           },
         },
       ],
@@ -92,9 +94,7 @@ describe('SemanticSearchService', () => {
   });
 
   it('should handle empty or invalid response from LLM', async () => {
-    const tools: FunctionDeclaration[] = [
-      { name: 'tool1', description: 'd1' },
-    ];
+    const tools: FunctionDeclaration[] = [{ name: 'tool1', description: 'd1' }];
     const query = 'help me';
 
     mockContentGenerator.generateContent.mockResolvedValue({

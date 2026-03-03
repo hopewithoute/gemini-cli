@@ -343,7 +343,9 @@ describe('Server Config (config.ts)', () => {
     });
 
     it('should wrap ToolRegistry with MetaToolRegistry when useMetaTools is enabled', async () => {
-      const { MetaToolRegistry } = await import('../tools/meta-tool-registry.js');
+      const { MetaToolRegistry } = await import(
+        '../tools/meta-tool-registry.js'
+      );
       const params: ConfigParameters = {
         ...baseParams,
         useMetaTools: true,
