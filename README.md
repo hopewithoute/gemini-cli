@@ -14,6 +14,16 @@ most direct path from your prompt to our model.
 
 Learn all about Gemini CLI in our [documentation](https://geminicli.com/docs/).
 
+## 🎉 What's New
+
+- **Multi-Account Switcher:** Easily manage and switch between multiple Gemini
+  API profiles.
+  [Read the docs](./docs/plans/2026-03-02-multi-account-switcher.md)
+- **Custom Status Line & Quota Display:** Personalize your CLI status line and
+  track usage. [Read the docs](./docs/cli/custom-statusline.md)
+- **Meta-Tools System:** Advanced agentic search and execution capabilities.
+  [Read the docs](./docs/plans/2026-03-03-meta-tools-design.md)
+
 ## 🚀 Why Gemini CLI?
 
 - **🎯 Free tier**: 60 requests/min and 1,000 requests/day with personal Google
