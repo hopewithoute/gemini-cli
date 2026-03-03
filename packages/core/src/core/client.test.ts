@@ -23,6 +23,7 @@ import {
 } from './contentGenerator.js';
 import { GeminiChat } from './geminiChat.js';
 import type { Config } from '../config/config.js';
+import type { ToolRegistry } from '../tools/tool-registry.js';
 import {
   CompressionStatus,
   GeminiEventType,
@@ -354,6 +355,26 @@ describe('Gemini Client (client.ts)', () => {
       expect(newChat).not.toBe(initialChat);
       expect(newHistory.length).toBe(initialHistory.length);
       expect(JSON.stringify(newHistory)).not.toContain('some old message');
+    });
+  });
+
+  describe('setTools', () => {
+    it('should delegate to config.getToolRegistry()', async () => {
+      const mockToolRegistry = {
+        getFunctionDeclarations: vi.fn().mockReturnValue([{ name: 'test_tool' }]),
+      };
+      vi.mocked(mockConfig.getToolRegistry).mockReturnValue(mockToolRegistry as unknown as ToolRegistry);
+
+      const mockChat = client.getChat();
+      const setToolsSpy = vi.spyOn(mockChat, 'setTools');
+
+      await client.setTools('test-model');
+
+      expect(mockConfig.getToolRegistry).toHaveBeenCalled();
+      expect(mockToolRegistry.getFunctionDeclarations).toHaveBeenCalledWith('test-model');
+      expect(setToolsSpy).toHaveBeenCalledWith([
+        { functionDeclarations: [{ name: 'test_tool' }] },
+      ]);
     });
   });
 
