@@ -1,6 +1,7 @@
 # Install Antigravity Superpowers Profile
 
-This package is a standalone Antigravity profile. It does not modify the original Superpowers source workflows.
+This package is a standalone Antigravity profile. It does not modify the
+original Superpowers source workflows.
 
 ## Prerequisites
 
@@ -23,7 +24,8 @@ mkdir -p .agent
 cp -R /path/to/antigravity-superpowers-cli/templates/.agent/* .agent/
 ```
 
-If your project already has `.agent/skills`, merge carefully and keep the versions you want.
+If your project already has `.agent/skills`, merge carefully and keep the
+versions you want.
 
 ## What Gets Installed
 
@@ -36,7 +38,8 @@ If your project already has `.agent/skills`, merge carefully and keep the versio
 
 Runtime tracking file:
 
-- `docs/plans/task.md` in the target project root (created at runtime by skill flow, list-only table)
+- `docs/plans/task.md` in the target project root (created at runtime by skill
+  flow, list-only table)
 
 ## Verify Profile
 

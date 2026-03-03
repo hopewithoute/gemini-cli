@@ -1,8 +1,10 @@
 # Spec Compliance Reviewer Prompt Template
 
-Use this template when running a spec compliance review step in single-flow mode.
+Use this template when running a spec compliance review step in single-flow
+mode.
 
-**Purpose:** Verify implementer built what was requested (nothing more, nothing less)
+**Purpose:** Verify implementer built what was requested (nothing more, nothing
+less)
 
 ```
 task_boundary:
