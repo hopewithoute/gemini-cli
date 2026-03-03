@@ -1757,6 +1757,16 @@ const SETTINGS_SCHEMA = {
           'Enable local and remote subagents. Warning: Experimental feature, uses YOLO mode for subagents',
         showInDialog: false,
       },
+      useMetaTools: {
+        type: 'boolean',
+        label: 'Use Meta Tools',
+        category: 'Experimental',
+        requiresRestart: true,
+        default: false,
+        description:
+          'Reduces context window usage by semantically searching for tools.',
+        showInDialog: true,
+      },
       extensionManagement: {
         type: 'boolean',
         label: 'Extension Management',

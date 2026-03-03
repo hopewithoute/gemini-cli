@@ -35,7 +35,9 @@ If no tools are relevant, return an empty array [].`;
     }
 
     const toolsMetadata = tools
-      .map((t) => `- ${t.name}: ${t.description || 'No description available.'}`)
+      .map(
+        (t) => `- ${t.name}: ${t.description || 'No description available.'}`,
+      )
       .join('\n');
 
     const userPrompt = `Available tools:\n${toolsMetadata}\n\nUser query: "${query}"`;
@@ -53,7 +55,9 @@ If no tools are relevant, return an empty array [].`;
           model: this.config.getModel(),
           contents,
           config: {
-            systemInstruction: { parts: [{ text: SemanticSearchService.SYSTEM_PROMPT }] },
+            systemInstruction: {
+              parts: [{ text: SemanticSearchService.SYSTEM_PROMPT }],
+            },
             responseMimeType: 'application/json',
             temperature: 0,
           },
@@ -71,7 +75,10 @@ If no tools are relevant, return an empty array [].`;
       let selectedToolNames: string[];
       try {
         const parsed = JSON.parse(responseText) as unknown;
-        if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === 'string')) {
+        if (
+          !Array.isArray(parsed) ||
+          !parsed.every((item) => typeof item === 'string')
+        ) {
           debugLogger.warn(
             'SemanticSearchService: Response is not an array of strings',
             responseText,
@@ -91,7 +98,10 @@ If no tools are relevant, return an empty array [].`;
       // Max 3
       const topNames = selectedToolNames.slice(0, 3);
 
-      return tools.filter((t) => topNames.includes(t.name));
+      return tools.filter(
+        (t): t is FunctionDeclaration & { name: string } =>
+          t.name !== undefined && topNames.includes(t.name),
+      );
     } catch (error) {
       debugLogger.error('SemanticSearchService: search failed:', error);
       return [];

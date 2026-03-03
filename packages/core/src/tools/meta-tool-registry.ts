@@ -6,15 +6,13 @@
 
 import type { FunctionDeclaration } from '@google/genai';
 import { ToolRegistry } from './tool-registry.js';
-import { SemanticSearchService } from './semantic-search-service.js';
-import {
+import type { SemanticSearchService } from './semantic-search-service.js';
+import type {
   ToolResult,
-  Kind,
-  BaseDeclarativeTool,
-  BaseToolInvocation,
   AnyDeclarativeTool,
   ToolInvocation,
 } from './tools.js';
+import { Kind, BaseDeclarativeTool, BaseToolInvocation } from './tools.js';
 import type { MessageBus } from '../confirmation-bus/message-bus.js';
 
 class SearchToolsInvocation extends BaseToolInvocation<

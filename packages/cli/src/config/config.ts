@@ -825,6 +825,7 @@ export async function loadCliConfig(
     extensionLoader: extensionManager,
     enableExtensionReloading: settings.experimental?.extensionReloading,
     enableAgents: settings.experimental?.enableAgents,
+    useMetaTools: settings.experimental?.useMetaTools,
     plan: settings.experimental?.plan,
     directWebFetch: settings.experimental?.directWebFetch,
     planSettings: settings.general?.plan,
